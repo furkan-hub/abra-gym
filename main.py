@@ -1,6 +1,7 @@
 import tkinter as tk
 import threading
 import time
+import numpy as np
 from dronekit import *
 from time import *
 import subprocess
@@ -8,6 +9,11 @@ import random
 import datetime
 import json
 import math
+from scipy.spatial.transform import Rotation as R#bounding box için kullanılıyor
+import utilis# kartezyen kordinata çevirmek için kullanılıyor
+import os
+
+
 
 # Bu tool 2024 yılında abra iha takımının yapay zeka pilotunu eğitmek için oluşturulmuş bir eğitim alanıdır
 # Bu script birden fazla ardupilot sitl oluşturarak yapay bir savaşan iha simulasyonu yapmakttadır.
@@ -20,7 +26,9 @@ connection_is_ok = False #bağlantının tamamlandığını belirtir
 telems = [] #telemetrileri tutar telem0 = sitl0 telemetrisi demektir. stil0 ise plane0 temsil etmektedir.
 gps_time = {}
 mavproxy_check = False#mavproxy açılsın mı açılmasın mı
-counter = 0#mavroxy butonu için değişken
+js_write_check = False#yeni stil açılsın mı (önceki sessiondan kalmış olabilir boşa tekrar açmasın)
+counter = 0#mavroxy butonu için sayaç
+counter_js = 0#json yazma için sayaç
 
 #waypointler
 waypoints= [Command(0, 0, 0, mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT, mavutil.mavlink.MAV_CMD_NAV_WAYPOINT, 0, 0, 0, 0, 0, 0, 40.22931650,29.00920630,100.000000),
@@ -32,6 +40,10 @@ waypoints= [Command(0, 0, 0, mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT, mavu
             Command(0, 0, 0, mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT, mavutil.mavlink.MAV_CMD_NAV_WAYPOINT, 0, 0, 0, 0, 0, 0, 40.23116760,29.00348780,100.000000),
             Command(0, 0, 0, mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT, mavutil.mavlink.MAV_CMD_NAV_WAYPOINT, 0, 0, 0, 0, 0, 0, 40.23122500,29.00604130,100.000000),
             Command(0, 0, 0, mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT, mavutil.mavlink.MAV_CMD_NAV_WAYPOINT, 0, 0, 0, 0, 0, 0, 40.23118400,29.00806900,100.000000)]
+
+
+loc_comand = utilis.LocationConverter()
+cartesian_locs = []
 
 #gui için renk tanımlamaları
 GRAY = "#383737"
@@ -99,18 +111,38 @@ def loop():# telemetrilerin oluşturuluması ve json dosyasına yazılması
                     "hedef_yukseklik": 0,
                     "gps_saati":gps_time,
                 }
+                
                 telems.append(telem)
-               
+
+            #küresel kordinat sistemini kartezyen kordinat sistemine çevirir ardından tüm hava araçları için aradaki mesafeleri hesaplar ve kaydeder   
+            for i in telems:
+                for j in telems:
+                    if i != j:
+                        #print(i["iha_enlem"],i["iha_boylam"],i["iha_irtifa"]),(j["iha_enlem"],i["iha_boylam"],j["iha_irtifa"])
+                        locs_cart = loc_comand.relativeLoc([i["iha_enlem"],i["iha_boylam"],i["iha_irtifa"]],[j["iha_enlem"],j["iha_boylam"],j["iha_irtifa"]])
+                        cartesian_loc = {
+                            "uav_num":(i["takim_numarasi"],j["takim_numarasi"]),
+                            "locs":locs_cart
+                        }
+                        cartesian_locs.append(cartesian_loc)
+
 
             #print(str(telems))
             #print(str(list(telems)))
             
+            
+           
             #json_telem = json.dumps(telems)
             with open("telems.json", "w") as dosya:#telemetri paketlerini json olarak kaydet
                 json.dump(telems, dosya,indent=4)
 
+            with open("cartesian_locs.json", "w") as cartesian:#telemetri paketlerini json olarak kaydet
+                json.dump(cartesian_locs, cartesian,indent=3)
+
             #print(json_telem)
+            #os.system("clear")
             telems.clear()
+            cartesian_locs.clear()
             sleep(1)
 
 def btn_start():# simulasyonu başlatma 
@@ -216,7 +248,6 @@ def btn_choose_takeoff():#belirli bir aracı arm edip take off moduna geçirir
     else:
         print("There is no plane.")
 
-
 def mavproxy_check_but():#mavproxy etkinleştirilsin mi
     global mavproxy_check, counter
     counter += 1
@@ -229,6 +260,19 @@ def mavproxy_check_but():#mavproxy etkinleştirilsin mi
         mavproxy_check = False
         counter = 0
         print("mavroxy off")
+
+def js_write_check_but():#mavproxy etkinleştirilsin mi
+    global js_write_check , counter_js
+    counter_js += 1
+    if counter_js == 1:
+        js_write_check = True
+
+        print("json write on")
+
+    if counter_js == 2:
+        js_write_check = False
+        counter_js = 0
+        print("json write off")
 
 def random_waypoints():#tüm araçlara belirli bir alan içindee rastgele yeni görev yazar.
     if connection_is_ok == True:
@@ -254,6 +298,60 @@ def random_waypoints():#tüm araçlara belirli bir alan içindee rastgele yeni g
 
 def loc_calc():#tüm araçlar için kamerayı simule eder ve kilitlenme dörtgenlerini oluşturur
     pass
+
+def cartes2Spher(x,y,z):#kamera simulasyonu için gerekli fonksiyon(inaktif)
+    r=np.sqrt(x*x+y*y+z*z)
+    theta=np.arccos(z/np.sqrt(x*x+y*y))
+    phi=np.arccos(x/np.sqrt(x*x+y*y))*np.sign(y)
+
+    return r,theta,phi
+
+def CalcBBox(uav1,uav2,fov):#kamera ve bounding boz simulasyonu için (inaktif)
+    fov/=2
+    prismDims=[1.1,1.718,0.25]
+    halfDims=[x/2 for x in prismDims]
+
+    cubeCorners=[]
+    for i in range(2):
+        for j in range(2):
+            for k in range(2):
+                point=[i*prismDims[0]-halfDims[0],j*prismDims[1]-halfDims[1],k*prismDims[2]-halfDims[2]]
+                cubeCorners.append(point)
+    cubeCorners=np.array(cubeCorners)
+    angles=[uav2["yaw"],uav2["pitch"],uav2["roll"]]
+
+    r =R.from_euler('zyx',angles,degrees=False)
+
+    rotatedCorners=[r.apply(x) for x in cubeCorners]
+    #r theta phi
+    ######################
+    # pitch ve yaw ursinada ters veya 90 derece eksik/fazlaydı ona göre pitch ve yawı değiştirmen gerekebilir
+    camDir=[1,uav1["pitch"],uav1["yaw"]]
+    #####################
+    points=[cartes2Spher(coords[0]-(uav2["x"]-uav1["x"]),coords[0]-(uav2["y"]-uav1["y"]),coords[0]-(uav2["z"]-uav1["z"])) for coords in rotatedCorners]
+    points=np.array(points)
+    points[:]-=camDir
+
+# points=np.rad2deg(points)
+    screenPoints=[]
+    for point in points:
+        screenPoints.append([point[1]/fov,point[2]/fov])
+    screenPoints=np.array(screenPoints)
+
+    xs=[min(screenPoints[:,0]),max(screenPoints[:,0])]
+    ys=[min(screenPoints[:,1]),max(screenPoints[:,1])]
+
+    withinScreen=lambda a: -1<a<1
+
+    if withinScreen(xs[0]) or withinScreen(xs[1]) or withinScreen(ys[0]) or withinScreen(ys[1]):
+        xs[0]=np.clip(xs[0],-1,1)
+        ys[0]=np.clip(ys[0],-1,1)
+        xs[1]=np.clip(xs[1],-1,1)
+        ys[1]=np.clip(ys[1],-1,1)
+
+        bbox=[xs[0],ys[1],(xs[1]-xs[0]),(ys[1]-ys[0])]
+        return bbox
+    return [0,0,0,0]
 
 #region gui
 # Arayüzü oluştur
@@ -325,6 +423,8 @@ choose_text_box.place(x=500, y=40)
 checkbox = tk.Checkbutton(root, text="Mavproxy",command=mavproxy_check_but)
 checkbox.place(x=10, y=200)
 
+checkbox2 = tk.Checkbutton(root, text="dont write json",command=js_write_check_but)
+checkbox2.place(x=10, y=150)
 
 stilcount_label = tk.Label(root, text="Sitl Count")
 stilcount_label.place(x=10, y=20)
