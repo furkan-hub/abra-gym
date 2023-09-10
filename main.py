@@ -42,8 +42,8 @@ waypoints= [Command(0, 0, 0, mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT, mavu
             Command(0, 0, 0, mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT, mavutil.mavlink.MAV_CMD_NAV_WAYPOINT, 0, 0, 0, 0, 0, 0, 40.23118400,29.00806900,100.000000)]
 
 
-loc_comand = utilis.LocationConverter()
-cartesian_locs = []
+loc_comand = utilis.LocationConverter()#kartezyene çevirme kütüphanesi
+cartesian_locs = []#kartezyen kordinatları
 
 #gui için renk tanımlamaları
 GRAY = "#383737"
@@ -133,11 +133,12 @@ def loop():# telemetrilerin oluşturuluması ve json dosyasına yazılması
             
            
             #json_telem = json.dumps(telems)
-            with open("telems.json", "w") as dosya:#telemetri paketlerini json olarak kaydet
-                json.dump(telems, dosya,indent=4)
+            if js_write_check == True:
+                with open("telems.json", "w") as dosya:#telemetri paketlerini json olarak kaydet
+                    json.dump(telems, dosya,indent=4)
 
-            with open("cartesian_locs.json", "w") as cartesian:#telemetri paketlerini json olarak kaydet
-                json.dump(cartesian_locs, cartesian,indent=3)
+                with open("cartesian_locs.json", "w") as cartesian:#telemetri paketlerini json olarak kaydet
+                    json.dump(cartesian_locs, cartesian,indent=3)
 
             #print(json_telem)
             #os.system("clear")
@@ -291,7 +292,7 @@ def random_waypoints():#tüm araçlara belirli bir alan içindee rastgele yeni g
             sitl[i].commands.add(selected_items[1])
             sitl[i].commands.add(selected_items[2])
             sitl[i].commands.add(selected_items[3])
-            #sitl[i].commands.add(Command(0, 0, 0,mavutil.mavlink.MAV_CMD_DO_JUMP,0, 0, 0, 0,1,-1,0,0,0,0))
+            sitl[i].commands.add(Command(0, 0, 0,0,mavutil.mavlink.MAV_CMD_DO_JUMP, 0, 0, 1,-1,0,0,0,0,0))#do_jump komutu
             sitl[i].commands.upload()#seçilen waypointleri yükle
     else:
         print("There is no plane.")
@@ -397,12 +398,12 @@ but_auto = tk.Button(root, text="fbwa", command=btn_auto,bg="yellow")
 but_auto.place(x=140, y=250)
 
 #mode auto button(choosen)
-but_auto = tk.Button(root, text="auto", command=btn_auto,bg="yellow")
-but_auto.place(x=560, y=40)
+btn_choose_auto_but = tk.Button(root, text="auto", command=btn_choose_auto,bg="yellow")
+btn_choose_auto_but.place(x=560, y=40)
 
 #mode FBWA button(choosen)
-but_auto = tk.Button(root, text="fbwa", command=btn_auto,bg="yellow")
-but_auto.place(x=600, y=40)
+btn_choose_fbwa_but = tk.Button(root, text="fbwa", command=btn_choose_fbwa,bg="yellow")
+btn_choose_fbwa_but.place(x=600, y=40)
 
 #text
 sitl_text_box = tk.Text(root,
@@ -423,7 +424,7 @@ choose_text_box.place(x=500, y=40)
 checkbox = tk.Checkbutton(root, text="Mavproxy",command=mavproxy_check_but)
 checkbox.place(x=10, y=200)
 
-checkbox2 = tk.Checkbutton(root, text="dont write json",command=js_write_check_but)
+checkbox2 = tk.Checkbutton(root, text="Write json",command=js_write_check_but)
 checkbox2.place(x=10, y=150)
 
 stilcount_label = tk.Label(root, text="Sitl Count")
