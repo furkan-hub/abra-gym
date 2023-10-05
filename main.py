@@ -44,6 +44,8 @@ waypoints= [Command(0, 0, 0, mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT, mavu
 
 loc_comand = utilis.LocationConverter()#kartezyene çevirme kütüphanesi
 cartesian_locs = []#kartezyen kordinatları
+bbox = []#bounding boxlar
+
 
 #gui için renk tanımlamaları
 GRAY = "#383737"
@@ -120,12 +122,36 @@ def loop():# telemetrilerin oluşturuluması ve json dosyasına yazılması
                     if i != j:
                         #print(i["iha_enlem"],i["iha_boylam"],i["iha_irtifa"]),(j["iha_enlem"],i["iha_boylam"],j["iha_irtifa"])
                         locs_cart = loc_comand.relativeLoc([i["iha_enlem"],i["iha_boylam"],i["iha_irtifa"]],[j["iha_enlem"],j["iha_boylam"],j["iha_irtifa"]])
-                        cartesian_loc = {
-                            "uav_num":(i["takim_numarasi"],j["takim_numarasi"]),
-                            "locs":locs_cart
+                       
+                        uav_loc_1 = {
+                            "uav_num":(i["takim_numarasi"]),
+                            "x":0,
+                            "y":0,
+                            "z":0,
+                            "pitch":i["iha_dikilme"],
+                            "yaw":i["iha_yonelme"],
+                            "roll":i["iha_yatis"]
                         }
-                        cartesian_locs.append(cartesian_loc)
 
+
+                        uav_loc_2 = {
+                            "uav_num":(i["takim_numarasi"],j["takim_numarasi"]),
+                            "x":locs_cart[0],
+                            "y":locs_cart[1],
+                            "z":locs_cart[2],
+                            "pitch":j["iha_dikilme"],
+                            "yaw":j["iha_yonelme"],
+                            "roll":j["iha_yatis"]
+                        }
+
+                        #print(locs_cart[0])
+                        cartesian_locs.append(uav_loc_2)
+                        bbox_dic = {
+                            "uav":(i["takim_numarasi"],j["takim_numarasi"]),
+                            "bbox":CalcBBox(uav_loc_1,uav_loc_2,30)
+                        }
+                        
+                        bbox.append(bbox_dic)
 
             #print(str(telems))
             #print(str(list(telems)))
@@ -140,10 +166,14 @@ def loop():# telemetrilerin oluşturuluması ve json dosyasına yazılması
                 with open("cartesian_locs.json", "w") as cartesian:#telemetri paketlerini json olarak kaydet
                     json.dump(cartesian_locs, cartesian,indent=3)
 
+                with open("bbox.json", "w") as bboxes:#telemetri paketlerini json olarak kaydet
+                    json.dump(bbox, bboxes,indent=3)
+
             #print(json_telem)
             #os.system("clear")
             telems.clear()
             cartesian_locs.clear()
+            bbox.clear()
             sleep(1)
 
 def btn_start():# simulasyonu başlatma 
@@ -307,7 +337,7 @@ def cartes2Spher(x,y,z):#kamera simulasyonu için gerekli fonksiyon(inaktif)
 
     return r,theta,phi
 
-def CalcBBox(uav1,uav2,fov):#kamera ve bounding boz simulasyonu için (inaktif)
+def CalcBBox(uav1,uav2,fov):
     fov/=2
     prismDims=[1.1,1.718,0.25]
     halfDims=[x/2 for x in prismDims]
@@ -329,7 +359,7 @@ def CalcBBox(uav1,uav2,fov):#kamera ve bounding boz simulasyonu için (inaktif)
     # pitch ve yaw ursinada ters veya 90 derece eksik/fazlaydı ona göre pitch ve yawı değiştirmen gerekebilir
     camDir=[1,uav1["pitch"],uav1["yaw"]]
     #####################
-    points=[cartes2Spher(coords[0]-(uav2["x"]-uav1["x"]),coords[0]-(uav2["y"]-uav1["y"]),coords[0]-(uav2["z"]-uav1["z"])) for coords in rotatedCorners]
+    points=[cartes2Spher(coords[0]-(uav2["x"]-uav1["x"]),coords[1]-(uav2["y"]-uav1["y"]),coords[2]-(uav2["z"]-uav1["z"])) for coords in rotatedCorners]
     points=np.array(points)
     points[:]-=camDir
 

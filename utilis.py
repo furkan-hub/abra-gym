@@ -31,5 +31,5 @@ class LocationConverter:
         disty=subList(self.trans_GPS_to_XYZ.transform(*locy),first)
         distx=len3d(distx)*np.sign(loc2[1]-loc1[1])
         disty=len3d(disty)*np.sign(loc2[0]-loc1[0])
-        return distx,disty,z
+        return [distx,disty,z]
     

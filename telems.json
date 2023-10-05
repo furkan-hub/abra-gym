@@ -1,14 +1,14 @@
 [
     {
         "takim_numarasi": 1,
-        "iha_enlem": 40.2296025,
-        "iha_boylam": 29.0083515,
-        "iha_irtifa": 200.96,
-        "iha_dikilme": -1.6129723311086657,
-        "iha_yonelme": -117.85745495894126,
-        "iha_yatis": 36.20939069608176,
-        "iha_hiz": 22.660768508911133,
-        "iha_batarya": 0,
+        "iha_enlem": 40.231011,
+        "iha_boylam": 29.0042176,
+        "iha_irtifa": 199.78,
+        "iha_dikilme": -3.3421056894317385,
+        "iha_yonelme": 94.53677124555155,
+        "iha_yatis": -39.96322851297492,
+        "iha_hiz": 22.514102935791016,
+        "iha_batarya": 93,
         "iha_otonom": 1,
         "iha_kilitlenme": 0,
         "hedef_merkez_X": 0,
@@ -16,22 +16,22 @@
         "hedef_genislik": 0,
         "hedef_yukseklik": 0,
         "gps_saati": {
-            "saat": 23,
-            "dakika": 10,
-            "saniye": 39,
-            "milisaniye": 436
+            "saat": 19,
+            "dakika": 59,
+            "saniye": 27,
+            "milisaniye": 656
         }
     },
     {
         "takim_numarasi": 2,
-        "iha_enlem": 40.2303375,
-        "iha_boylam": 29.0067276,
-        "iha_irtifa": 200.98,
-        "iha_dikilme": -1.8874832901018845,
-        "iha_yonelme": -8.268713240355707,
-        "iha_yatis": 36.150340295612416,
-        "iha_hiz": 22.676359176635742,
-        "iha_batarya": 0,
+        "iha_enlem": 40.2326267,
+        "iha_boylam": 29.0064316,
+        "iha_irtifa": 197.57,
+        "iha_dikilme": -0.17929394647650243,
+        "iha_yonelme": -36.7492420178904,
+        "iha_yatis": -5.992627404643006,
+        "iha_hiz": 22.840843200683594,
+        "iha_batarya": 94,
         "iha_otonom": 1,
         "iha_kilitlenme": 0,
         "hedef_merkez_X": 0,
@@ -39,22 +39,22 @@
         "hedef_genislik": 0,
         "hedef_yukseklik": 0,
         "gps_saati": {
-            "saat": 23,
-            "dakika": 10,
-            "saniye": 39,
-            "milisaniye": 436
+            "saat": 19,
+            "dakika": 59,
+            "saniye": 27,
+            "milisaniye": 656
         }
     },
     {
         "takim_numarasi": 3,
-        "iha_enlem": 40.2312856,
-        "iha_boylam": 29.0079837,
-        "iha_irtifa": 200.98,
-        "iha_dikilme": -1.7575120472725352,
-        "iha_yonelme": 91.17283477742856,
-        "iha_yatis": 36.2105893942811,
-        "iha_hiz": 22.61748695373535,
-        "iha_batarya": 0,
+        "iha_enlem": 40.2309862,
+        "iha_boylam": 29.0077365,
+        "iha_irtifa": 194.84,
+        "iha_dikilme": 2.272602866122819,
+        "iha_yonelme": -19.88653631569359,
+        "iha_yatis": -16.3298860601387,
+        "iha_hiz": 22.763519287109375,
+        "iha_batarya": 94,
         "iha_otonom": 1,
         "iha_kilitlenme": 0,
         "hedef_merkez_X": 0,
@@ -62,56 +62,10 @@
         "hedef_genislik": 0,
         "hedef_yukseklik": 0,
         "gps_saati": {
-            "saat": 23,
-            "dakika": 10,
-            "saniye": 39,
-            "milisaniye": 436
-        }
-    },
-    {
-        "takim_numarasi": 4,
-        "iha_enlem": 40.2296133,
-        "iha_boylam": 29.007384,
-        "iha_irtifa": 200.99,
-        "iha_dikilme": -1.801023980823513,
-        "iha_yonelme": -68.28442690641978,
-        "iha_yatis": 36.08961649879642,
-        "iha_hiz": 22.645687103271484,
-        "iha_batarya": 0,
-        "iha_otonom": 1,
-        "iha_kilitlenme": 0,
-        "hedef_merkez_X": 0,
-        "hedef_merkez_Y": 0,
-        "hedef_genislik": 0,
-        "hedef_yukseklik": 0,
-        "gps_saati": {
-            "saat": 23,
-            "dakika": 10,
-            "saniye": 39,
-            "milisaniye": 436
-        }
-    },
-    {
-        "takim_numarasi": 5,
-        "iha_enlem": 40.2309433,
-        "iha_boylam": 29.0069646,
-        "iha_irtifa": 200.94,
-        "iha_dikilme": -1.7656426404274947,
-        "iha_yonelme": 33.82637867579933,
-        "iha_yatis": 35.985585887547956,
-        "iha_hiz": 22.625925064086914,
-        "iha_batarya": 0,
-        "iha_otonom": 1,
-        "iha_kilitlenme": 0,
-        "hedef_merkez_X": 0,
-        "hedef_merkez_Y": 0,
-        "hedef_genislik": 0,
-        "hedef_yukseklik": 0,
-        "gps_saati": {
-            "saat": 23,
-            "dakika": 10,
-            "saniye": 39,
-            "milisaniye": 436
+            "saat": 19,
+            "dakika": 59,
+            "saniye": 27,
+            "milisaniye": 656
         }
     }
 ]
