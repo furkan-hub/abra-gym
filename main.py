@@ -29,6 +29,8 @@ mavproxy_check = False#mavproxy açılsın mı açılmasın mı
 js_write_check = False#yeni stil açılsın mı (önceki sessiondan kalmış olabilir boşa tekrar açmasın)
 counter = 0#mavroxy butonu için sayaç
 counter_js = 0#json yazma için sayaç
+missions = []
+
 
 #waypointler
 waypoints= [Command(0, 0, 0, mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT, mavutil.mavlink.MAV_CMD_NAV_WAYPOINT, 0, 0, 0, 0, 0, 0, 40.22931650,29.00920630,100.000000),
@@ -146,9 +148,10 @@ def loop():# telemetrilerin oluşturuluması ve json dosyasına yazılması
 
                         #print(locs_cart[0])
                         cartesian_locs.append(uav_loc_2)
+
                         bbox_dic = {
                             "uav":(i["takim_numarasi"],j["takim_numarasi"]),
-                            "bbox":CalcBBox(uav_loc_1,uav_loc_2,30)
+                            "bbox":CalcBBox(uav_loc_1,uav_loc_2,(5*math.pi)/6)
                         }
                         
                         bbox.append(bbox_dic)
@@ -324,6 +327,14 @@ def random_waypoints():#tüm araçlara belirli bir alan içindee rastgele yeni g
             sitl[i].commands.add(selected_items[3])
             sitl[i].commands.add(Command(0, 0, 0,0,mavutil.mavlink.MAV_CMD_DO_JUMP, 0, 0, 1,-1,0,0,0,0,0))#do_jump komutu
             sitl[i].commands.upload()#seçilen waypointleri yükle
+
+            # mission = {"uav":i,
+            #            "waypoints":selected_items}
+            
+            # missions.append(mission)
+
+        print(missions)
+            
     else:
         print("There is no plane.")
 
